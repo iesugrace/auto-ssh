@@ -1,7 +1,30 @@
 #!/bin/bash
 
-server=$1
-cmd=$2
+help() {
+    cat << EOF
+Usage: $(basename $0) server-list cmdstring
+       $(basename $0) server-list -f script
+EOF
+}
+
+argparse() {
+    if test $# -eq 2; then
+        server_list=$1
+        cmdstring=$2
+    elif test $# -eq 3; then
+        server_list=$1
+        if test "$2" = "-f"; then
+            script=$3
+        else
+            help >&2
+            exit 1
+        fi
+    else
+        help >&2
+        exit 1
+    fi
+}
+
 port=9089
 user=root
 
