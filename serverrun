@@ -1,0 +1,15 @@
+#!/bin/bash
+
+server=$1
+cmd=$2
+port=9089
+user=root
+
+ssh ${user}@$server
+
+
+# list format
+# ip password
+
+# serverrun server-list cmdstring
+# serverrun server-list -f script
