@@ -39,12 +39,13 @@ upload_file() {
 
 # run a command on the remote server
 run_cmd() {
-    local user host port cmd
+    local user host port cmd options
     user=$1
     host=$2
     port=$3
     cmd=$4
-    ssh -p $port ${user}@${server} "$cmd"
+    options="UserKnownHostsFile=/dev/null"
+    ssh -p $port -o $options ${user}@${host} "$cmd"
 }
 
 port=9089
