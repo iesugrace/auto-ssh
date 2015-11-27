@@ -25,14 +25,32 @@ argparse() {
     fi
 }
 
+# upload script to the remote host
+upload_file() {
+    local user host port src dst options
+    user=$1
+    host=$2
+    port=$3
+    src=$4
+    dst=$5
+    options="UserKnownHostsFile=/dev/null"
+    scp -P $port -o $options "$src" ${user}@${host}:"$dst"
+}
+
+# run a command on the remote server
+run_cmd() {
+    local user host port cmd
+    user=$1
+    host=$2
+    port=$3
+    cmd=$4
+    ssh -p $port ${user}@${server} "$cmd"
+}
+
 port=9089
 user=root
 
-ssh ${user}@$server
 
 
 # list format
 # ip password
-
-# serverrun server-list cmdstring
-# serverrun server-list -f script
