@@ -68,6 +68,20 @@ run_script() {
 port=22
 user=joshua
 
+# start from here
+argparse "$@"
+while read host password
+do
+    echo "working on $host" >&2
 
-# list format
-# ip password
+    if test -n "$script"; then
+        run_script $user $host $port "$script"
+    else
+        run_cmd $user $host $port "$cmd"
+    fi
+    if test $? -eq 0; then
+        echo "success: $host" >&2
+    else
+        echo "failed: $host" >&2
+    fi
+done < ${server_list}
