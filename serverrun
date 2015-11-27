@@ -2,7 +2,7 @@
 
 help() {
     cat << EOF
-Usage: $(basename $0) server-list cmdstring
+Usage: $(basename $0) server-list cmd
        $(basename $0) server-list -f script
 EOF
 }
@@ -10,7 +10,7 @@ EOF
 argparse() {
     if test $# -eq 2; then
         server_list=$1
-        cmdstring=$2
+        cmd=$2
     elif test $# -eq 3; then
         server_list=$1
         if test "$2" = "-f"; then
