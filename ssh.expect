@@ -1,0 +1,18 @@
+#!/usr/bin/expect -f
+# Author: Long Zhu <kyo2011@163.com>
+#         Joshua Chen <iesugrace@gmail.com>
+# Date: 2015-11-27
+# Location: Shenzhen
+# Desc: auto feed ssh with password
+
+set user [lindex $argv 0]
+set pass [lindex $argv 1]
+set host [lindex $argv 2]
+set port [lindex $argv 3]
+set cmd  [lindex $argv 4]
+spawn ssh -p $port $user@$host "$cmd"
+expect {
+    "*yes/no*" {send "yes\r"; exp_continue}
+    "*password:" {send "${pass}\r"}
+}
+expect eof
