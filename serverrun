@@ -48,9 +48,25 @@ run_cmd() {
     ssh -p $port -o $options ${user}@${host} "$cmd"
 }
 
-port=9089
-user=root
+# upload a script to remote, then run it remotely
+run_script() {
+    local user host port cmd options
+    user=$1
+    host=$2
+    port=$3
+    script=$4
+    dst=/tmp/$(basename $script)
+    upload_file "$user" "$host" "$port" "$script" "$dst"
+    if test $? -eq 0; then
+        run_cmd "$user" "$host" "$port" "$dst; rm -f $dst"
+    else
+        echo "upload failed: $host" >&2
+        return 1
+    fi
+}
 
+port=22
+user=joshua
 
 
 # list format
