@@ -27,61 +27,62 @@ argparse() {
 
 # upload script to the remote host
 upload_file() {
-    local user host port src dst options
+    local user pass host port src dst
     user=$1
-    host=$2
-    port=$3
-    src=$4
-    dst=$5
-    options="UserKnownHostsFile=/dev/null"
-    scp -P $port -o $options "$src" ${user}@${host}:"$dst"
+    pass=$2
+    host=$3
+    port=$4
+    src=$5
+    dst=$6
+    $SCP "$user" "$pass" "$host" "$port" "$src" "$dst"
 }
 
 # run a command on the remote server
 run_cmd() {
-    local user host port cmd options
+    local user pass host port cmd
     user=$1
-    host=$2
-    port=$3
-    cmd=$4
-    options="UserKnownHostsFile=/dev/null"
-    ssh -p $port -o $options ${user}@${host} "$cmd"
+    pass=$2
+    host=$3
+    port=$4
+    cmd=$5
+    $SSH "$user" "$pass" "$host" "$port" "$cmd"
 }
 
 # upload a script to remote, then run it remotely
 run_script() {
-    local user host port cmd options
+    local user pass host port script
     user=$1
-    host=$2
-    port=$3
-    script=$4
+    pass=$2
+    host=$3
+    port=$4
+    script=$5
     dst=/tmp/$(basename $script)
-    upload_file "$user" "$host" "$port" "$script" "$dst"
-    if test $? -eq 0; then
-        run_cmd "$user" "$host" "$port" "$dst; rm -f $dst"
+    upload_file "$user" "$pass" "$host" "$port" "$script" "$dst"
+    run_cmd "$user" "$pass" "$host" "$port" "$dst; rm -f $dst"
+}
+
+real_path() {
+    if test -L $1; then
+        readlink "$1"
     else
-        echo "upload failed: $host" >&2
-        return 1
+        echo "$1"
     fi
 }
 
 port=22
 user=joshua
+SCP=./scp.expect
+SSH=./ssh.expect
 
 # start from here
+cd $(dirname $(real_path $0))
 argparse "$@"
-while read host password
+while read host pass
 do
     echo "working on $host" >&2
-
     if test -n "$script"; then
-        run_script $user $host $port "$script"
+        run_script "$user" "$pass" "$host" "$port" "$script"
     else
-        run_cmd $user $host $port "$cmd"
-    fi
-    if test $? -eq 0; then
-        echo "success: $host" >&2
-    else
-        echo "failed: $host" >&2
+        run_cmd "$user" "$pass" "$host" "$port" "$cmd"
     fi
 done < ${server_list}
