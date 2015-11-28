@@ -3,15 +3,23 @@
 #         Joshua Chen <iesugrace@gmail.com>
 # Date: 2015-11-27
 # Location: Shenzhen
-# Desc: auto feed scp with password
+# Desc: auto feed scp with password, push files to remote host
 
-set user [lindex $argv 0]
-set pass [lindex $argv 1]
-set host [lindex $argv 2]
-set port [lindex $argv 3]
-set src  [lindex $argv 4]
-set dst  [lindex $argv 5]
-spawn scp -P $port $src $user@$host:$dst
+set host [lindex $argv 0]
+set port [lindex $argv 1]
+set user [lindex $argv 2]
+set pass [lindex $argv 3]
+set last [expr $argc - 1]
+set dst  [lindex $argv $last]
+
+##
+# delete other options, leave the source paths
+# remove the dst
+set srcs [lreplace $argv $last $last]
+# remove all login options before
+set srcs [lreplace $srcs 0 3]
+
+spawn scp -r -P $port {*}$srcs $user@$host:$dst
 expect {
     "*yes/no*" {send "yes\r"; exp_continue}
     "*password:" {send "${pass}\r"}
