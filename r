@@ -7,6 +7,7 @@ $(basename $0) exec  -l SERVERS-LIST-FILE COMMAND-LIST-STRING
 $(basename $0) exec  -l SERVERS-LIST-FILE -s SCRIPT-FILE
 $(basename $0) push  -l SERVERS-LIST-FILE SRC... DST
 $(basename $0) shell -l SERVERS-LIST-FILE
+$(basename $0) exec  -l SERVERS-LIST-FILE -h 10.1.1.1 COMMAND-LIST-STRING
 $(basename $0) exec  -h 10.1.1.1 -P 7722 -u admin -p "p@ssword" COMMAND-LIST-STRING
 $(basename $0) exec  -h 10.1.1.1 -P 7722 -u admin -p "p@ssword" -s SCRIPT-FILE
 $(basename $0) push  -h 10.1.1.1 -P 7722 -u admin -p "p@ssword" SRC... DST
@@ -15,8 +16,11 @@ $(basename $0) shell -h 10.1.1.1 -P 7722 -u admin -p "p@ssword" SERVERS-LIST-FIL
 SERVERS-LIST-FILE shall be formated like this, one host per line:
 hostname:port:username:password
 
-If the -l option is not provided, -h, -P, -u, -p are required,
-command works on one single host.
+If the -l option is not provided, -h, -P, -u, -p are required, the
+command then will work on one single host.
+
+If both the -l and -h options are provided, the command will operate
+on that host, login information is fetched from the SERVERS-LIST-FILE
 
 If the -s option is provided, the COMMAND-LIST-STRING will be
 silently ignored.
@@ -57,6 +61,17 @@ parse_arguments() {
         echo "argument error" >&2
         help >&2
         return 1
+    fi
+
+    # explicitly pick a single host from the server list
+    # this is convenient to access one host from many
+    if test -n "$server_list" -a -n "$host"; then
+        IFS=: read host port user pass <<< $(grep "^${host}:" $server_list | head -n1)
+        if ! login_info_ok "$host" "$port" "$user" "$pass"; then
+            echo "bad login information for $host" >&2
+            return 1
+        fi
+        unset server_list   # it's now a single host operation
     fi
 
     # store the remaining arguments
