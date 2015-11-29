@@ -70,8 +70,52 @@ log() {
     echo "$*" >&2
     # logger ...
 }
+
+# execute command on one host,
+# upload script if required
+# arguments: host port user password
+execute_one_host() {
+    if test -n "$script_file"; then
+        dst="$(mktemp -u)_$(date +%s)"
+        $RPUSH "$1" "$2" "$3" "$4" "$script_file" "$dst"
+        if test $? -eq 0; then
+            log "ACTION=PUSH ; STATE=OK ; SRC=$script_file ; DST=${1}:$dst"
+        else
+            log "ACTION=PUSH ; STATE=FAILED ; SRC=$script_file ; DST=${1}:$dst"
+            return 1
+        fi
+        COMMAND_LIST="${dst}; rm -f $dst"
+    else
+        COMMAND_LIST=${ARGS[1]}
+    fi
+    $REXEC "$1" "$2" "$3" "$4" "$COMMAND_LIST"
+    if test $? -eq 0; then
+        log "ACTION=EXEC ; STATE=OK ; HOST=${1} ; CMD=$COMMAND_LIST"
+    else
+        log "ACTION=EXEC ; STATE=FAILED ; HOST=${1} ; CMD=$COMMAND_LIST"
+    fi
+}
+
+# execute commands on the remote host,
+# do it in a parallel manner.
 execute() {
-    :
+    if test -n "$server_list"; then
+        # bulk operation
+        OLDIFS=$IFS
+        IFS=:
+        while read host port user pass
+        do
+            if ! login_info_ok "$host" "$port" "$user" "$pass"; then
+                continue
+            fi
+            execute_one_host "$host" "$port" "$user" "$pass" &
+        done <<< "$(grep -v ^# $server_list)"
+        wait
+        IFS=$OLDIFS
+    else
+        # single host operation
+        execute_one_host "$host" "$port" "$user" "$pass"
+    fi
 }
 
 push() {
