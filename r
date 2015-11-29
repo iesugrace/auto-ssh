@@ -23,22 +23,28 @@ silently ignored.
 EOF
 }
 
-argparse() {
-    if test $# -eq 2; then
-        server_list=$1
-        cmd=$2
-    elif test $# -eq 3; then
-        server_list=$1
-        if test "$2" = "-f"; then
-            script=$3
-        else
-            help >&2
-            exit 1
-        fi
-    else
-        help >&2
-        exit 1
-    fi
+parse_arguments() {
+    while getopts "l:s:h:P:u:p:" op
+    do
+        case "$op" in
+            l)  server_list=$OPTARG; shift 2 ;;
+            s)  script_file=$OPTARG; shift 2 ;;
+            h)  host=$OPTARG; shift 2 ;;
+            P)  port=$OPTARG; shift 2 ;;
+            u)  user=$OPTARG; shift 2 ;;
+            p)  pass=$OPTARG; shift 2 ;;
+            *)  ;;
+        esac
+    done
+
+    # store the remaining arguments
+    unset ARGS
+    i=1
+    for a in "$@"
+    do
+        ARGS[$i]=$a
+        i=$((i + 1))
+    done
 }
 
 execute() {
