@@ -1,29 +1,66 @@
 #!/bin/bash
 
 help() {
-    cat << EOF
+bname=$(basename $0)
+cat << EOF
 Usage:
-$(basename $0) exec  -l SERVERS-LIST-FILE COMMAND-LIST-STRING
-$(basename $0) exec  -l SERVERS-LIST-FILE -s SCRIPT-FILE
-$(basename $0) push  -l SERVERS-LIST-FILE SRC... DST
-$(basename $0) shell -l SERVERS-LIST-FILE
-$(basename $0) exec  -l SERVERS-LIST-FILE -h 10.1.1.1 COMMAND-LIST-STRING
-$(basename $0) exec  -h 10.1.1.1 -P 7722 -u admin -p "p@ssword" COMMAND-LIST-STRING
-$(basename $0) exec  -h 10.1.1.1 -P 7722 -u admin -p "p@ssword" -s SCRIPT-FILE
-$(basename $0) push  -h 10.1.1.1 -P 7722 -u admin -p "p@ssword" SRC... DST
-$(basename $0) shell -h 10.1.1.1 -P 7722 -u admin -p "p@ssword" SERVERS-LIST-FILE
+    $bname exec  [-l LIST|-h HOST|-P PORT|-u USER|-p PASSWORD] [-q] [-s SCRIPT|COMMANDS]
+    $bname push  [-l LIST|-h HOST|-P PORT|-u USER|-p PASSWORD] [-q] SRC... DST
+    $bname shell [-l LIST|-h HOST|-P PORT|-u USER|-p PASSWORD]
 
-SERVERS-LIST-FILE shall be formated like this, one host per line:
+For more information, run: $bname -h
+EOF
+}
+
+detailed_help() {
+bname=$(basename $0)
+cat << EOF
+Usage:
+    $bname exec  [-l LIST|-h HOST|-P PORT|-u USER|-p PASSWORD] [-q] [-s SCRIPT|COMMANDS]
+    $bname push  [-l LIST|-h HOST|-P PORT|-u USER|-p PASSWORD] [-q] SRC... DST
+    $bname shell [-l LIST|-h HOST|-P PORT|-u USER|-p PASSWORD]
+
+Examples:
+    Execute one command:
+        $ $bname exec -l servers.txt uptime
+
+    Execute a list of commands:
+        $ $bname exec -l servers.txt 'touch /tmp/flag; uptime'
+
+    Execute a script:
+        $ $bname exec -l servers.txt -s job.sh
+
+    Push one file:
+        $ $bname push -l servers.txt /etc/passwd /tmp/passwd
+
+    Push multiple files:
+        $ $bname push -l servers.txt /etc/passwd /etc/group /tmp
+
+    Shell to each host in the list:
+        $ $bname shell -l servers.txt
+
+    Shell to one specific host in the list:
+        $ $bname shell -l servers.txt -h 10.1.1.11
+
+    Execute a script on one host in the list:
+        $ $bname exec -l servers.txt -h 10.1.1.12 /tmp/special_script.sh
+
+    Execute a script on all hosts, suppress all output:
+        $ $bname exec -l servers.txt -q /tmp/common_script.sh
+
+    Execute a command, provide the login information manually:
+        $ $bname exec -h 10.1.1.1 -P 22 -u admin -p "p@ssword" 'grep ERROR /var/log/message'
+
+LIST file shall be formated like this, one host per line:
 hostname:port:username:password
 
 If the -l option is not provided, -h, -P, -u, -p are required, the
 command then will work on one single host.
 
 If both the -l and -h options are provided, the command will operate
-on that host, login information is fetched from the SERVERS-LIST-FILE
+on that host, login information is fetched from the LIST file.
 
-If the -s option is provided, the COMMAND-LIST-STRING will be
-silently ignored.
+If the -s option is provided, the COMMAND will be silently ignored.
 EOF
 }
 
@@ -226,6 +263,12 @@ real_path() {
 REXEC='./r-exec'
 RPUSH='./r-push'
 RSHELL='./r-shell'
+
+# show detailed help message
+if test "$1" = '-h'; then
+    detailed_help
+    exit
+fi
 
 cd $(dirname $(real_path $0))
 sub_command=$1
