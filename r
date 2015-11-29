@@ -125,8 +125,23 @@ execute() {
     run_cmd "execute_one_host"
 }
 
+# push file(s) to the remote host
+# arguments: host port user password
+push_one_host() {
+    len=${#ARGS[@]}
+    dst=${ARGS[$len]}
+    unset ARGS[$len]
+    $RPUSH "$1" "$2" "$3" "$4" "${ARGS[@]}" "$dst"
+    if test $? -eq 0; then
+        log "ACTION=PUSH ; STATE=OK ; SRC=${ARGS[*]} ; DST=${1}:$dst"
+    else
+        log "ACTION=PUSH ; STATE=FAILED ; SRC=${ARGS[*]} ; DST=${1}:$dst"
+        return 1
+    fi
+}
+
 push() {
-    :
+    run_cmd "push_one_host"
 }
 
 shell() {
