@@ -43,9 +43,7 @@ parse_arguments() {
 
     # either server_list must be provided,
     # or all of -h, -P, -u, -p.
-    if test -z "$server_list" && \
-       test -z "$host" -o -z "$port" -o \
-            -z "$user" -o -z "$pass"; then
+    if test -z "$server_list" && ! login_info_ok "$host" "$port" "$user" "$pass"; then
         echo "argument error" >&2
         help >&2
         return 1
@@ -61,6 +59,11 @@ parse_arguments() {
     done
 
     return 0
+}
+
+# check host, port, user name, password
+login_info_ok() {
+    test -n "$1" -a -n "$2" -a -n "$3" -a -n "$4"
 }
 
 execute() {
