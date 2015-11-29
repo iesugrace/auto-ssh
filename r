@@ -71,6 +71,30 @@ log() {
     # logger ...
 }
 
+# run sub-commands on the remote hosts, do it in a parallel
+# manner; handle exec, push, shell commands; $1 shall be a
+# function to actually perform the task for push, exec, shell
+run_cmd() {
+    doer=$1
+    if test -n "$server_list"; then
+        # bulk operation
+        OLDIFS=$IFS
+        IFS=:
+        while read host port user pass
+        do
+            if ! login_info_ok "$host" "$port" "$user" "$pass"; then
+                continue
+            fi
+            $doer "$host" "$port" "$user" "$pass" &
+        done <<< "$(grep -v ^# $server_list)"
+        wait
+        IFS=$OLDIFS
+    else
+        # single host operation
+        $doer "$host" "$port" "$user" "$pass"
+    fi
+}
+
 # execute command on one host,
 # upload script if required
 # arguments: host port user password
@@ -96,26 +120,9 @@ execute_one_host() {
     fi
 }
 
-# execute commands on the remote host,
-# do it in a parallel manner.
+# execute commands on the remote host
 execute() {
-    if test -n "$server_list"; then
-        # bulk operation
-        OLDIFS=$IFS
-        IFS=:
-        while read host port user pass
-        do
-            if ! login_info_ok "$host" "$port" "$user" "$pass"; then
-                continue
-            fi
-            execute_one_host "$host" "$port" "$user" "$pass" &
-        done <<< "$(grep -v ^# $server_list)"
-        wait
-        IFS=$OLDIFS
-    else
-        # single host operation
-        execute_one_host "$host" "$port" "$user" "$pass"
-    fi
+    run_cmd "execute_one_host"
 }
 
 push() {
