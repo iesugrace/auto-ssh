@@ -71,11 +71,12 @@ log() {
     # logger ...
 }
 
-# run sub-commands on the remote hosts, do it in a parallel
-# manner; handle exec, push, shell commands; $1 shall be a
+# run sub-commands on the remote hosts, do it in a parallel manner
+# by default; handle exec, push, shell commands; $1 shall be a
 # function to actually perform the task for push, exec, shell
 run_cmd() {
     doer=$1
+    serial=$2
     if test -n "$server_list"; then
         # bulk operation
         OLDIFS=$IFS
@@ -85,7 +86,11 @@ run_cmd() {
             if ! login_info_ok "$host" "$port" "$user" "$pass"; then
                 continue
             fi
-            $doer "$host" "$port" "$user" "$pass" &
+            if test "$serial" = 1; then
+                $doer "$host" "$port" "$user" "$pass"
+            else
+                $doer "$host" "$port" "$user" "$pass" &
+            fi
         done <<< "$(grep -v ^# $server_list)"
         wait
         IFS=$OLDIFS
