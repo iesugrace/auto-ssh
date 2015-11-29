@@ -28,7 +28,7 @@ EOF
 }
 
 parse_arguments() {
-    while getopts "l:s:h:P:u:p:" op
+    while getopts "l:s:h:P:u:p:q" op
     do
         case "$op" in
             l)  server_list=$OPTARG ;;
@@ -37,6 +37,7 @@ parse_arguments() {
             P)  port=$OPTARG ;;
             u)  user=$OPTARG ;;
             p)  pass=$OPTARG ;;
+            q)  quiet=1 ;;
             *)  ;;
         esac
     done
@@ -230,6 +231,13 @@ cd $(dirname $(real_path $0))
 sub_command=$1
 shift
 parse_arguments "$@" || exit
+
+# handle quiet mode, no effect for 'shell' sub-command
+if test "$quiet" = 1 -a "$sub_command" != 'shell'; then
+    exec 1> /dev/null
+    exec 2> /dev/null
+fi
+
 case "$sub_command" in
     exec) execute ;;
     push) push ;;
