@@ -264,8 +264,11 @@ REXEC='./r-exec'
 RPUSH='./r-push'
 RSHELL='./r-shell'
 
-# show detailed help message
-if test "$1" = '-h'; then
+# show the help message
+if test -z "$1"; then
+    help
+    exit
+elif test "$1" = '-h'; then
     detailed_help
     exit
 fi
