@@ -66,6 +66,10 @@ login_info_ok() {
     test -n "$1" -a -n "$2" -a -n "$3" -a -n "$4"
 }
 
+log() {
+    echo "$*" >&2
+    # logger ...
+}
 execute() {
     :
 }
