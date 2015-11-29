@@ -68,7 +68,7 @@ login_info_ok() {
 
 log() {
     echo "$*" >&2
-    # logger ...
+    logger -t "[AUTO-REMOTE] " -p local0.info "$*"
 }
 
 # run sub-commands on the remote hosts, do it in a parallel manner
