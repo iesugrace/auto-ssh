@@ -86,6 +86,11 @@ real_path() {
     fi
 }
 
+# plumbing commands
+REXEC='./r-exec'
+RPUSH='./r-push'
+RSHELL='./r-shell'
+
 cd $(dirname $(real_path $0))
 sub_command=$1
 shift
