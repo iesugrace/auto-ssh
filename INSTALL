@@ -1,0 +1,9 @@
+1. Copy the four files to a directory
+    # mkdir /usr/local/auto-ssh
+    # cp r r-exec r-push r-shell /usr/local/auto-ssh
+
+2. Create a symbolic link in the PATH for the r command
+    # ln -sv /usr/local/auto-ssh/r /usr/local/bin/r
+
+3. How to use?
+    # r -h
