@@ -85,20 +85,12 @@ real_path() {
     fi
 }
 
-port=22
-user=joshua
-SCP=./scp.expect
-SSH=./ssh.expect
-
-# start from here
 cd $(dirname $(real_path $0))
-argparse "$@"
-while read host pass
-do
-    echo "working on $host" >&2
-    if test -n "$script"; then
-        run_script "$user" "$pass" "$host" "$port" "$script"
-    else
-        run_cmd "$user" "$pass" "$host" "$port" "$cmd"
-    fi
-done < ${server_list}
+sub_command=$1
+shift
+case "$sub_command" in
+    exec) execute "$@" ;;
+    push) push "$@" ;;
+    shell) shell "$@" ;;
+    *) help ;;
+esac
