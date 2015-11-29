@@ -41,6 +41,16 @@ parse_arguments() {
     # other options between these processed options
     shift $((OPTIND - 1))
 
+    # file existence check
+    if test -n "$server_list" && test ! -f "$server_list"; then
+        echo "$server_list not exists" >&2
+        return 1
+    fi
+    if test -n "$script_file" && test ! -f "$script_file"; then
+        echo "$script_file not exists" >&2
+        return 1
+    fi
+
     # either server_list must be provided,
     # or all of -h, -P, -u, -p.
     if test -z "$server_list" && ! login_info_ok "$host" "$port" "$user" "$pass"; then
@@ -62,8 +72,20 @@ parse_arguments() {
 }
 
 # check host, port, user name, password
+# $1: host
+# $2: port
+# $3: user
+# $4: password
 login_info_ok() {
-    test -n "$1" -a -n "$2" -a -n "$3" -a -n "$4"
+    if ! test -n "$1" -a -n "$2" -a -n "$3" -a -n "$4"; then
+        echo "empty value is not allowed for host, port, user, password" >&2
+        return 1
+    fi
+    if ! grep -qE '^[1-9][0-9]*$' <<< "$2"; then
+        echo "invalid port number" >&2
+        return 1
+    fi
+    return 0
 }
 
 log() {
