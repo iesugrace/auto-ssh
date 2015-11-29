@@ -70,9 +70,10 @@ real_path() {
 cd $(dirname $(real_path $0))
 sub_command=$1
 shift
+parse_arguments "$@"
 case "$sub_command" in
-    exec) execute "$@" ;;
-    push) push "$@" ;;
-    shell) shell "$@" ;;
+    exec) execute ;;
+    push) push ;;
+    shell) shell ;;
     *) help ;;
 esac
