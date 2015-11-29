@@ -77,6 +77,7 @@ log() {
 run_cmd() {
     doer=$1
     serial=$2
+    tty=$3
     if test -n "$server_list"; then
         # bulk operation
         OLDIFS=$IFS
@@ -86,8 +87,17 @@ run_cmd() {
             if ! login_info_ok "$host" "$port" "$user" "$pass"; then
                 continue
             fi
+            # serial mode is used by shell sub-command shell,
+            # shell also needs a terminal as its stdin. since
+            # the stdin of the while block is not a tty, we
+            # need to restore it back to /dev/tty before shell.
             if test "$serial" = 1; then
-                $doer "$host" "$port" "$user" "$pass"
+                if test -n "$tty"; then
+                    exec 3<"$tty"
+                else
+                    exec 3<&0
+                fi
+                $doer "$host" "$port" "$user" "$pass" 0<&3
             else
                 $doer "$host" "$port" "$user" "$pass" &
             fi
@@ -149,8 +159,21 @@ push() {
     run_cmd "push_one_host"
 }
 
+# get a shell of the remote host
+# arguments: host port user password
+shell_one_host() {
+    $RSHELL "$1" "$2" "$3" "$4"
+    if test $? -eq 0; then
+        log "ACTION=SHELL ; LAST_STATE=zero ; HOST=$1"
+    else
+        log "ACTION=SHELL ; LAST_STATE=non-zero ; HOST=$1"
+        return 1
+    fi
+}
+
 shell() {
-    :
+    # shell sub-command shall run in serial mode
+    run_cmd "shell_one_host" 1 /dev/tty
 }
 
 real_path() {
