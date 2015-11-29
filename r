@@ -27,15 +27,29 @@ parse_arguments() {
     while getopts "l:s:h:P:u:p:" op
     do
         case "$op" in
-            l)  server_list=$OPTARG; shift 2 ;;
-            s)  script_file=$OPTARG; shift 2 ;;
-            h)  host=$OPTARG; shift 2 ;;
-            P)  port=$OPTARG; shift 2 ;;
-            u)  user=$OPTARG; shift 2 ;;
-            p)  pass=$OPTARG; shift 2 ;;
+            l)  server_list=$OPTARG ;;
+            s)  script_file=$OPTARG ;;
+            h)  host=$OPTARG ;;
+            P)  port=$OPTARG ;;
+            u)  user=$OPTARG ;;
+            p)  pass=$OPTARG ;;
             *)  ;;
         esac
     done
+
+    # shift the processed options, assume that no
+    # other options between these processed options
+    shift $((OPTIND - 1))
+
+    # either server_list must be provided,
+    # or all of -h, -P, -u, -p.
+    if test -z "$server_list" && \
+       test -z "$host" -o -z "$port" -o \
+            -z "$user" -o -z "$pass"; then
+        echo "argument error" >&2
+        help >&2
+        return 1
+    fi
 
     # store the remaining arguments
     unset ARGS
@@ -45,6 +59,8 @@ parse_arguments() {
         ARGS[$i]=$a
         i=$((i + 1))
     done
+
+    return 0
 }
 
 execute() {
@@ -70,7 +86,7 @@ real_path() {
 cd $(dirname $(real_path $0))
 sub_command=$1
 shift
-parse_arguments "$@"
+parse_arguments "$@" || exit
 case "$sub_command" in
     exec) execute ;;
     push) push ;;
