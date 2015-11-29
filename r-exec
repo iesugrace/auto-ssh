@@ -17,3 +17,7 @@ expect {
     "*password:" {send "${pass}\r"}
 }
 expect eof
+
+# return the return code of the spawned process
+lassign [wait] pid spawnid os_error_flag return_status
+exit $return_status
