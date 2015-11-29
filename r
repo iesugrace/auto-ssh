@@ -41,40 +41,16 @@ argparse() {
     fi
 }
 
-# upload script to the remote host
-upload_file() {
-    local user pass host port src dst
-    user=$1
-    pass=$2
-    host=$3
-    port=$4
-    src=$5
-    dst=$6
-    $SCP "$user" "$pass" "$host" "$port" "$src" "$dst"
+execute() {
+    :
 }
 
-# run a command on the remote server
-run_cmd() {
-    local user pass host port cmd
-    user=$1
-    pass=$2
-    host=$3
-    port=$4
-    cmd=$5
-    $SSH "$user" "$pass" "$host" "$port" "$cmd"
+push() {
+    :
 }
 
-# upload a script to remote, then run it remotely
-run_script() {
-    local user pass host port script
-    user=$1
-    pass=$2
-    host=$3
-    port=$4
-    script=$5
-    dst=/tmp/$(basename $script)
-    upload_file "$user" "$pass" "$host" "$port" "$script" "$dst"
-    run_cmd "$user" "$pass" "$host" "$port" "$dst; rm -f $dst"
+shell() {
+    :
 }
 
 real_path() {
