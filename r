@@ -2,8 +2,24 @@
 
 help() {
     cat << EOF
-Usage: $(basename $0) server-list cmd
-       $(basename $0) server-list -f script
+Usage:
+$(basename $0) exec  -l SERVERS-LIST-FILE COMMAND-LIST-STRING
+$(basename $0) exec  -l SERVERS-LIST-FILE -s SCRIPT-FILE
+$(basename $0) push  -l SERVERS-LIST-FILE SRC... DST
+$(basename $0) shell -l SERVERS-LIST-FILE
+$(basename $0) exec  -h 10.1.1.1 -P 7722 -u admin -p "p@ssword" COMMAND-LIST-STRING
+$(basename $0) exec  -h 10.1.1.1 -P 7722 -u admin -p "p@ssword" -s SCRIPT-FILE
+$(basename $0) push  -h 10.1.1.1 -P 7722 -u admin -p "p@ssword" SRC... DST
+$(basename $0) shell -h 10.1.1.1 -P 7722 -u admin -p "p@ssword" SERVERS-LIST-FILE
+
+SERVERS-LIST-FILE shall be formated like this, one host per line:
+hostname:port:username:password
+
+If the -l option is not provided, -h, -P, -u, -p are required,
+command works on one single host.
+
+If the -s option is provided, the COMMAND-LIST-STRING will be
+silently ignored.
 EOF
 }
 
