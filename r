@@ -126,7 +126,7 @@ parse_arguments() {
         fi
         IFS=: read desc host port user pass <<< "$record"
         if ! login_info_ok "$host" "$port" "$user" "$pass"; then
-            echo "bad login information for $host" >&2
+            echo "bad login information" >&2
             return 1
         fi
         unset server_list   # it's now a single host operation
