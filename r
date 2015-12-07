@@ -6,7 +6,7 @@ cat << EOF
 Usage:
     $bname exec  [-l LIST|-h HOST|-P PORT|-u USER|-p PASSWORD] [-q] [-s SCRIPT|COMMANDS]
     $bname push  [-l LIST|-h HOST|-P PORT|-u USER|-p PASSWORD] [-q] SRC... DST
-    $bname shell [-l LIST|-h HOST|-P PORT|-u USER|-p PASSWORD]
+    $bname shell [-l LIST|-d DESC|-h HOST|-P PORT|-u USER|-p PASSWORD]
 EOF
 }
 
