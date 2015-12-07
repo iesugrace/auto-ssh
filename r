@@ -1,24 +1,25 @@
 #!/bin/bash
 
-help() {
-bname=$(basename $0)
+usage() {
+bname=$1
 cat << EOF
 Usage:
     $bname exec  [-l LIST|-h HOST|-P PORT|-u USER|-p PASSWORD] [-q] [-s SCRIPT|COMMANDS]
     $bname push  [-l LIST|-h HOST|-P PORT|-u USER|-p PASSWORD] [-q] SRC... DST
     $bname shell [-l LIST|-h HOST|-P PORT|-u USER|-p PASSWORD]
-
-For more information, run: $bname -h
 EOF
+}
+
+help() {
+    bname=$(basename $0)
+    usage "$bname"
+    echo -e "\nFor more information, run: $bname -h"
 }
 
 detailed_help() {
 bname=$(basename $0)
 cat << EOF
-Usage:
-    $bname exec  [-l LIST|-h HOST|-P PORT|-u USER|-p PASSWORD] [-q] [-s SCRIPT|COMMANDS]
-    $bname push  [-l LIST|-h HOST|-P PORT|-u USER|-p PASSWORD] [-q] SRC... DST
-    $bname shell [-l LIST|-h HOST|-P PORT|-u USER|-p PASSWORD]
+$(usage "$bname")
 
 Examples:
     Execute one command:
