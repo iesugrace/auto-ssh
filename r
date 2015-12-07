@@ -282,11 +282,6 @@ real_path() {
     fi
 }
 
-# plumbing commands
-REXEC='./r-exec'
-RPUSH='./r-push'
-RSHELL='./r-shell'
-
 # show the help message
 if test -z "$1"; then
     help
@@ -296,7 +291,13 @@ elif test "$1" = '-h'; then
     exit
 fi
 
-cd $(dirname $(real_path $0))
+basedir=$(dirname $(real_path $0))
+
+# plumbing commands
+REXEC="$basedir/r-exec"
+RPUSH="$basedir/r-push"
+RSHELL="$basedir/r-shell"
+
 sub_command=$1
 shift
 parse_arguments "$@" || exit
