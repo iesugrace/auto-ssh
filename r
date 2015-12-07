@@ -107,15 +107,24 @@ parse_arguments() {
     fi
 
     # explicitly pick a single host from the server list
-    # this is convenient to access one host from many
+    # this is convenient to access one host from many.
+    # if user name is supplied, filter with user name.
     if test -n "$server_list" && test -n "$host" -o -n "$desc"; then
-        if test -n "$host"; then
-            IFS=: read desc host port user pass <<< \
-                $(awk -F: '$2 == "'${host}'"{print $0; exit}' $server_list)
-        elif test -n "$desc"; then
-            IFS=: read desc host port user pass <<< \
-                $(awk -F: '$1 == "'${desc}'"{print $0; exit}' $server_list)
+        if test -n "$desc"; then
+            records=$(awk -F: '$1 == "'${desc}'"{print $0}' $server_list)
+        elif test -n "$host"; then
+            records=$(awk -F: '$2 == "'${host}'"{print $0}' $server_list)
         fi
+        if test -n "$user"; then
+            record=$(awk -F: '$4 == "'${user}'"{print $0; exit}' <<< "$records")
+        else
+            record=$(head -n1 <<< "$records")
+        fi
+        if test -z "$record"; then
+            echo "no host record found for the given parameters" >&2
+            return 1
+        fi
+        IFS=: read desc host port user pass <<< "$record"
         if ! login_info_ok "$host" "$port" "$user" "$pass"; then
             echo "bad login information for $host" >&2
             return 1
