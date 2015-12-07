@@ -43,8 +43,11 @@ Examples:
     Shell to one specific host in the list:
         $ $bname shell -l servers.txt -h 10.1.1.11
 
-    Execute a script on one host in the list:
+    Execute a script on one host in the list, pick by host name:
         $ $bname exec -l servers.txt -h 10.1.1.12 /tmp/special_script.sh
+
+    Execute a script on one host in the list, pick by host description:
+        $ $bname exec -l servers.txt -d dns1 /tmp/special_script.sh
 
     Execute a script on all hosts, suppress all output:
         $ $bname exec -l servers.txt -q /tmp/common_script.sh
@@ -66,12 +69,13 @@ EOF
 }
 
 parse_arguments() {
-    while getopts "l:s:h:P:u:p:q" op
+    while getopts "d:l:s:h:P:u:p:q" op
     do
         case "$op" in
             l)  server_list=$OPTARG ;;
             s)  script_file=$OPTARG ;;
             h)  host=$OPTARG ;;
+            d)  desc=$OPTARG ;;
             P)  port=$OPTARG ;;
             u)  user=$OPTARG ;;
             p)  pass=$OPTARG ;;
@@ -104,8 +108,14 @@ parse_arguments() {
 
     # explicitly pick a single host from the server list
     # this is convenient to access one host from many
-    if test -n "$server_list" -a -n "$host"; then
-        IFS=: read host port user pass <<< $(grep "^${host}:" $server_list | head -n1)
+    if test -n "$server_list" && test -n "$host" -o -n "$desc"; then
+        if test -n "$host"; then
+            IFS=: read desc host port user pass <<< \
+                $(awk -F: '$2 == "'${host}'"{print $0; exit}' $server_list)
+        elif test -n "$desc"; then
+            IFS=: read desc host port user pass <<< \
+                $(awk -F: '$1 == "'${desc}'"{print $0; exit}' $server_list)
+        fi
         if ! login_info_ok "$host" "$port" "$user" "$pass"; then
             echo "bad login information for $host" >&2
             return 1
@@ -158,7 +168,7 @@ run_cmd() {
         # bulk operation
         OLDIFS=$IFS
         IFS=:
-        while read host port user pass
+        while read desc host port user pass
         do
             if ! login_info_ok "$host" "$port" "$user" "$pass"; then
                 continue
