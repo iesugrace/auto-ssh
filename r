@@ -49,6 +49,9 @@ Examples:
     Execute a script on one host in the list, pick by host description:
         $ $bname exec -l servers.txt -d dns1 /tmp/special_script.sh
 
+    Execute a script on one host in the list, pick by host description and user name:
+        $ $bname exec -l servers.txt -d dns1 -u root 'ls /root'
+
     Execute a script on all hosts, suppress all output:
         $ $bname exec -l servers.txt -q /tmp/common_script.sh
 
