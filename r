@@ -32,10 +32,10 @@ Examples:
         $ $bname exec -l servers.txt -s job.sh
 
     Push one file:
-        $ $bname push -l servers.txt /etc/passwd /tmp/passwd
+        $ $bname push -l servers.txt /client/path /server/path
 
     Push multiple files:
-        $ $bname push -l servers.txt /etc/passwd /etc/group /tmp
+        $ $bname push -l servers.txt /client/path1 /client/path2 /server/dir
 
     Shell to each host in the list:
         $ $bname shell -l servers.txt
