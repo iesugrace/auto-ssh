@@ -59,7 +59,7 @@ Examples:
         $ $bname exec -h 10.1.1.1 -P 22 -u admin -p "p@ssword" 'grep ERROR /var/log/message'
 
 LIST file shall be formated like this, one host per line:
-hostname:port:username:password
+desc:hostname:port:username:password
 
 If the -l option is not provided, -h, -P, -u, -p are required, the
 command then will work on one single host.
