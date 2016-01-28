@@ -5,12 +5,14 @@
 # Location: Shenzhen
 # Desc: auto feed ssh with password, give a shell to the user
 
+set timeout 30
 set host [lindex $argv 0]
 set port [lindex $argv 1]
 set user [lindex $argv 2]
 set pass [lindex $argv 3]
+set options "StrictHostKeyChecking=no"
 
-spawn ssh -p $port $user@$host
+spawn ssh -p $port -o $options $user@$host
 expect {
     "*yes/no*" {send "yes\r"; exp_continue}
     "*password:" {send "${pass}\r"}
