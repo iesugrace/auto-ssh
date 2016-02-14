@@ -6,6 +6,7 @@ cat << EOF
 Usage:
     $bname exec  [-l LIST|-h HOST|-P PORT|-u USER|-p PASSWORD] [-q] [-s SCRIPT|COMMANDS]
     $bname push  [-l LIST|-h HOST|-P PORT|-u USER|-p PASSWORD] [-q] SRC... DST
+    $bname pull  [-l LIST|-h HOST|-P PORT|-u USER|-p PASSWORD] [-q] SRC DST
     $bname shell [-l LIST|-d DESC|-h HOST|-P PORT|-u USER|-p PASSWORD]
 EOF
 }
@@ -36,6 +37,9 @@ Examples:
 
     Push multiple files:
         $ $bname push -l servers.txt /client/path1 /client/path2 /server/dir
+
+    Pull one file:
+        $ $bname pull -l servers.txt /server/path /client/path
 
     Shell to each host in the list:
         $ $bname shell -l servers.txt
@@ -257,6 +261,24 @@ push() {
     run_cmd "push_one_host"
 }
 
+# pull a file from the remote host
+# arguments: host port user password
+pull_one_host() {
+    src=${ARGS[1]}
+    dst=${ARGS[2]}
+    $RPULL "$1" "$2" "$3" "$4" "$src" "$dst"
+    if test $? -eq 0; then
+        log "ACTION=PULL ; STATE=OK ; SRC=${1}:$src ; DST=$dst"
+    else
+        log "ACTION=PULL ; STATE=FAILED ; SRC=${1}:$src ; DST=$dst"
+        return 1
+    fi
+}
+
+pull() {
+    run_cmd "pull_one_host"
+}
+
 # get a shell of the remote host
 # arguments: host port user password
 shell_one_host() {
@@ -296,6 +318,7 @@ basedir=$(dirname $(real_path $0))
 # plumbing commands
 REXEC="$basedir/r-exec"
 RPUSH="$basedir/r-push"
+RPULL="$basedir/r-pull"
 RSHELL="$basedir/r-shell"
 
 sub_command=$1
@@ -311,6 +334,7 @@ fi
 case "$sub_command" in
     exec) execute ;;
     push) push ;;
+    pull) pull ;;
     shell) shell ;;
     *) help ;;
 esac
