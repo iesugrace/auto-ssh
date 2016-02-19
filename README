@@ -1,5 +1,5 @@
 Automate the SSH operations with expect. Support running commands on the remote hosts,
-copying files to remote hosts, or even get a shell from the remote hosts, in turn.
+copying files to/from remote hosts, or even get a shell from the remote hosts, in turn.
 
 See LICENSE for license agreement.
 
